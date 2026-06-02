@@ -13,14 +13,6 @@ def display_menu():
 4. Hủy đơn hàng
 5. Thoát chương trình''')
 
-def find_order_index(input_code):
-    cleaned_code = input_code.strip().upper()
-    for i in range(len(order_list)):
-        order_code = order_list[i].split("-")[0].strip()
-        if order_code == cleaned_code:
-            return i
-    return -1
-
 def main():
     while True:
         display_menu()
@@ -32,72 +24,81 @@ def main():
                     print("Danh sách đơn hàng hiện đang trống.")
                 else:
                     print("\nDanh sách đơn hàng hiện tại:")
-                    for i in range(len(order_list)):
-                        print(f"{i+1}. {order_list[i]}")
+                    for i, item in enumerate(order_list):
+                        print(f"{i+1}. {item}")
                         
             case "2":
-                input_code = input("Nhập mã đơn hàng cần gán tài xế: ")
-                idx = find_order_index(input_code)
+                input_code = input("Nhập mã đơn hàng cần gán tài xế: ").strip().upper()
                 
-                if idx == -1:
-                    print("Không tìm thấy mã đơn hàng.")
+                # Chạy vòng lặp tìm kiếm trực tiếp trong case
+                for idx, item in enumerate(order_list):
+                    order_code = item.split("-")[0].strip()
+                    if order_code == input_code:
+                        order_code, current_status = [part.strip() for part in item.split("-")]
+                        
+                        if current_status == "PENDING":
+                            order_list[idx] = f"{order_code} - ASSIGNED"
+                            print(f"Gan tai xe thanh cong cho don hang {order_code}.")
+                        else:
+                            print("Loi: Chi co the gan tai xe cho don hang dang cho xu ly.")
+                        break
                 else:
-                    order_code, current_status = [part.strip() for part in order_list[idx].split("-")]
-                    
-                    if current_status == "PENDING":
-                        order_list[idx] = f"{order_code} - ASSIGNED"
-                        print(f"Gán tài xế thành công cho đơn hàng {order_code}.")
-                    else:
-                        print("Chỉ có thể gán tài xế cho đơn hàng đang chờ xử lý.")
+                    print("Loi: Khong tim thay ma don hang.")
                         
             case "3":
-                input_code = input("Nhập mã đơn hàng cần cập nhật trạng thái: ")
-                idx = find_order_index(input_code)
+                input_code = input("Nhập mã đơn hàng cần cập nhật trạng thái: ").strip().upper()
                 
-                if idx == -1:
-                    print("Không tìm thấy mã đơn hàng.")
+                # Chạy vòng lặp tìm kiếm trực tiếp trong case
+                for idx, item in enumerate(order_list):
+                    order_code = item.split("-")[0].strip()
+                    if order_code == input_code:
+                        order_code, current_status = [part.strip() for part in item.split("-")]
+                        
+                        match current_status:
+                            case "PENDING":
+                                print("Loi: Don hang chua duoc gan tai xe, khong the chuyen sang trang thai giao hang.")
+                            case "ASSIGNED":
+                                order_list[idx] = f"{order_code} - DELIVERING"
+                                print(f"Don hang {order_code} da chuyen sang trang thai: DELIVERING.")
+                            case "DELIVERING":
+                                order_list[idx] = f"{order_code} - COMPLETED"
+                                print(f"Don hang {order_code} da chuyen sang trang thai: COMPLETED.")
+                            case "COMPLETED":
+                                print("Loi: Don hang da hoan tat, khong the cap nhat tiep.")
+                            case "CANCELLED":
+                                print("Loi: Don hang da bi huy, khong the cap nhat.")
+                        break
                 else:
-                    order_code, current_status = [part.strip() for part in order_list[idx].split("-")]
-                    
-                    match current_status:
-                        case "PENDING":
-                            print("Đơn hàng chưa được gán tài xế, không thể chuyển sang trạng thái giao hàng.")
-                        case "ASSIGNED":
-                            order_list[idx] = f"{order_code} - DELIVERING"
-                            print(f"Đơn hàng {order_code} đã chuyển sang trạng thái: DELIVERING.")
-                        case "DELIVERING":
-                            order_list[idx] = f"{order_code} - COMPLETED"
-                            print(f"Đơn hàng {order_code} đã chuyển sang trạng thái: COMPLETED.")
-                        case "COMPLETED":
-                            print("Đơn hàng đã hoàn tất, không thể cập nhật tiếp.")
-                        case "CANCELLED":
-                            print("Đơn hàng đã bị hủy, không thể cập nhật.")
+                    print("Loi: Khong tim thay ma don hang.")
                             
             case "4":
-                input_code = input("Nhập mã đơn hàng cần hủy: ")
-                idx = find_order_index(input_code)
+                input_code = input("Nhập mã đơn hàng cần hủy: ").strip().upper()
                 
-                if idx == -1:
-                    print("Không tìm thấy mã đơn hàng.")
+                # Chạy vòng lặp tìm kiếm trực tiếp trong case
+                for idx, item in enumerate(order_list):
+                    order_code = item.split("-")[0].strip()
+                    if order_code == input_code:
+                        order_code, current_status = [part.strip() for part in item.split("-")]
+                        
+                        if current_status in ["PENDING", "ASSIGNED"]:
+                            order_list[idx] = f"{order_code} - CANCELLED"
+                            print(f"Don hang {order_code} da duoc huy thanh cong.")
+                        elif current_status == "DELIVERING":
+                            print("Loi: Don hang dang duoc giao, khong the huy.")
+                        elif current_status == "COMPLETED":
+                            print("Loi: Don hang da hoan tat, khong the huy.")
+                        elif current_status == "CANCELLED":
+                            print("Loi: Don hang da duoc huy truoc do.")
+                        break
                 else:
-                    order_code, current_status = [part.strip() for part in order_list[idx].split("-")]
-                    
-                    if current_status in ["PENDING", "ASSIGNED"]:
-                        order_list[idx] = f"{order_code} - CANCELLED"
-                        print(f"Đơn hàng {order_code} đã được hủy thành công.")
-                    elif current_status == "DELIVERING":
-                        print("Đơn hàng đang được giao, không thể hủy.")
-                    elif current_status == "COMPLETED":
-                        print("Đơn hàng đã hoàn tất, không thể hủy.")
-                    elif current_status == "CANCELLED":
-                        print("Đơn hàng đã được hủy trước đó.")
+                    print("Loi: Khong tim thay ma don hang.")
                         
             case "5":
-                print("Thoát chương trình")
+                print("Thoat chuong trinh. Tam biet!")
                 break
                 
             case _:
-                print("Lựa chọn không hợp lệ, vui lòng nhập lại!")
+                print("Loi: Lua chon khong hop le, vui long nhap lai!")
 
 if __name__ == "__main__":
     main()
