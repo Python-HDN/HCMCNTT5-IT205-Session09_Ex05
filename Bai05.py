@@ -48,7 +48,6 @@ def main():
             case "3":
                 input_code = input("Nhập mã đơn hàng cần cập nhật trạng thái: ").strip().upper()
                 
-                # Chạy vòng lặp tìm kiếm trực tiếp trong case
                 for idx, item in enumerate(order_list):
                     order_code = item.split("-")[0].strip()
                     if order_code == input_code:
@@ -78,8 +77,9 @@ def main():
                 for idx, item in enumerate(order_list):
                     order_code = item.split("-")[0].strip()
                     if order_code == input_code:
-                        order_code, current_status = [part.strip() for part in item.split("-")]
-                        
+                        parts = item.split("-")
+                        order_code = parts[0].strip()
+                        current_status = parts[1].strip()                     
                         if current_status in ["PENDING", "ASSIGNED"]:
                             order_list[idx] = f"{order_code} - CANCELLED"
                             print(f"Don hang {order_code} da duoc huy thanh cong.")
